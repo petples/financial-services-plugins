@@ -7,6 +7,11 @@ description: Clean up messy spreadsheet data — trim whitespace, fix inconsiste
 
 Clean messy data in the active sheet or a specified range.
 
+## Environment
+
+- **If running inside Excel (Office Add-in / Office JS):** Use Office JS directly (`Excel.run(async (context) => {...})`). Read via `range.values`, write helper-column formulas via `range.formulas = [["=TRIM(A2)"]]`. The in-place vs helper-column decision still applies.
+- **If operating on a standalone .xlsx file:** Use Python/openpyxl.
+
 ## Workflow
 
 ### Step 1: Scope
@@ -38,6 +43,8 @@ Show a summary table before changing anything:
 
 ### Step 4: Apply
 
-- Apply whitespace, casing, number/date conversion, and encoding fixes directly
-- For destructive operations (removing duplicates, filling blanks), confirm with the user first
+- **Prefer formulas over hardcoded cleaned values** — where the cleaned output can be expressed as a formula (e.g. `=TRIM(A2)`, `=VALUE(SUBSTITUTE(B2,"$",""))`, `=UPPER(C2)`, `=DATEVALUE(D2)`), write the formula in an adjacent helper column rather than computing the result in Python and overwriting the original. This keeps the transformation transparent and auditable.
+- Only overwrite in place with computed values when the user explicitly asks for it, or when no sensible formula equivalent exists (e.g. encoding/mojibake repair)
+- For destructive operations (removing duplicates, filling blanks, overwriting originals), confirm with the user first
+- After each category of fix (whitespace → casing → number conversion → dates → dedup), show the user a sample of what changed and get confirmation before moving to the next category
 - Report a before/after summary of what changed
