@@ -67,9 +67,14 @@ only what this user needs.
 {
   "gateway_url": "https://llm-gateway.yourcompany.internal/v1",
   "gateway_token": "sk-user-scoped-…",
+  "bootstrap_expires_at": 1775000000,
   "aws_role_arn": "arn:aws:iam::123456789012:role/ClaudeBedrockAccess-TeamA"
 }
 ```
+
+`bootstrap_expires_at` (epoch seconds or milliseconds — auto-detected)
+enables proactive config refresh: the add-in re-calls this endpoint before
+expiry. Omit for non-expiring snapshots.
 
 The add-in ignores unrecognized keys, so the envelope is forward-compatible.
 Today it carries provider config; future versions may read `skills`,
